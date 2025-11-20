@@ -2,40 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TarefaRequest;
+use App\Http\Resources\TarefaCollection;
 use App\Models\Tarefa;
 use Illuminate\Http\Request;
 
 class TarefaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        return Tarefa::all();
+        $tarefas = Tarefa::get();
+
+        return new TarefaCollection($tarefas);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(TarefaRequest $request)
     {
-        $tarefa = Tarefa::create($request->all());
-
+        $validated = $request->validated();
+        $tarefa = Tarefa::create($validated);
         return $tarefa;
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Tarefa $tarefa)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Tarefa $tarefa)
     {
         $tarefa->update($request->all());
@@ -43,9 +30,6 @@ class TarefaController extends Controller
         return $tarefa;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Tarefa $tarefa)
     {
         $tarefa->delete();

@@ -3,9 +3,20 @@
     <div style="width: 500px; max-width: 90vw">
       <h4 class="text-center q-mb-md">Lista de Tarefas</h4>
 
-      <q-input v-model="novaTarefaTitulo" label="Titulo da Tarefa" class="q-mb-md"></q-input>
-      <q-input v-model="novaTarefaDescricao" label="Descrição da Tarefa" class="q-mb-md"></q-input>
-      <q-btn label="Criar Nova Tarefa" color="primary" @click="criarTarefa" class="q-mb-md" />
+      <q-form @submit="criarTarefa" class="q-gutter-md">
+        <q-input
+          v-model="novaTarefaTitulo"
+          label="Titulo da Tarefa"
+          class="q-mb-md"
+          :rules="[(val) => val != null || 'Titulo obrigatorio']"
+        ></q-input>
+        <q-input
+          v-model="novaTarefaDescricao"
+          label="Descrição da Tarefa"
+          class="q-mb-md"
+        ></q-input>
+        <q-btn label="Criar Nova Tarefa" color="primary" class="q-mb-md" type="submit" />
+      </q-form>
 
       <q-list bordered separator rounded class="bg-white shadow-1">
         <q-item v-for="tarefa in tarefas" :key="tarefa.id">
@@ -34,21 +45,27 @@ import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
 const tarefas = ref([])
-const novaTarefaTitulo = ref('')
-const novaTarefaDescricao = ref('')
+const novaTarefaTitulo = ref(null)
+const novaTarefaDescricao = ref(null)
 
 const listarTarefas = async () => {
-  const request = await axios.get('http://localhost/api/tarefa')
+  $q.loading.show()
+  try {
+    const response = await axios.get('http://localhost/api/tarefa')
 
-  tarefas.value = request.data
+    tarefas.value = response.data.tarefas
+  } catch (error) {
+    $q.notify({ message: error, color: 'negative' })
+  } finally {
+    $q.loading.hide()
+  }
 }
 onMounted(() => {
   listarTarefas()
 })
 
 const criarTarefa = async () => {
-  if (novaTarefaTitulo.value === '') return
-
+  $q.loading.show()
   try {
     await axios.post('http://localhost/api/tarefa', {
       titulo: novaTarefaTitulo.value,
@@ -66,10 +83,13 @@ const criarTarefa = async () => {
       message: error,
       color: 'negative',
     })
+  } finally {
+    $q.loading.hide()
   }
 }
 
 const atualizarTarefa = async (tarefa) => {
+  $q.loading.show()
   try {
     await axios.put(`http://localhost/api/tarefa/${tarefa.id}`, { concluida: tarefa.concluida })
 
@@ -84,10 +104,13 @@ const atualizarTarefa = async (tarefa) => {
       color: 'negative',
     })
     tarefa.concluida = !tarefa.concluida
+  } finally {
+    $q.loading.hide()
   }
 }
 
 const deletarTarefa = async (tarefa) => {
+  $q.loading.show()
   try {
     await axios.delete(`http://localhost/api/tarefa/${tarefa.id}`)
 
@@ -98,6 +121,8 @@ const deletarTarefa = async (tarefa) => {
       message: error,
       color: 'negative',
     })
+  } finally {
+    $q.loading.hide()
   }
 }
 </script>

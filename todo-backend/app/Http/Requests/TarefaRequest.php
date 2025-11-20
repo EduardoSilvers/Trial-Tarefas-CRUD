@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class TarefaRequest extends FormRequest
+{
+
+    public function rules()
+    {
+        return [
+            'titulo' => 'required|string',
+            'descricao' => 'nullable|string',
+            'concluida' => 'required|boolean',
+        ];
+    }
+}
